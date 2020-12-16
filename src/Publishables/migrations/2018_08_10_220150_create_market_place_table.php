@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class CreateMarketPlaceTable extends Migration
 {
@@ -13,18 +13,13 @@ class CreateMarketPlaceTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('email')->unique();
-            $table->string('username')->unique();
-            $table->string('password');
-            $table->string('location');
-            $table->text('permissions')->nullable();
-            $table->timestamp('email_verified_at')->nullable();
-
-            $table->string('remember_token')->nullable();
-            $table->timestamps();
-        });
+        if (Schema::hasTable('users')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('username')->unique();
+                $table->string('location');
+                $table->text('permissions')->nullable();
+            });
+        }
 
         Schema::create('roles', function (Blueprint $table) {
             $table->increments('id');
