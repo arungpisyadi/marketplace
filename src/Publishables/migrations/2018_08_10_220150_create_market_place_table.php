@@ -13,6 +13,7 @@ class CreateMarketPlaceTable extends Migration
      */
     public function up()
     {
+        
         if (Schema::hasTable('users')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->string('username')->unique();
