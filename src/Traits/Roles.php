@@ -3,6 +3,7 @@
 namespace SecTheater\Marketplace\Traits\Roles;
 
 use SecTheater\Marketplace\Exceptions\InsufficientPermissionsException;
+
 trait Roles
 {
     public function hasAllRole($roles)

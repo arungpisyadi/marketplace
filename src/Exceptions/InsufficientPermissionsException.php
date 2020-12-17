@@ -5,6 +5,7 @@ namespace SecTheater\Marketplace\Exceptions;
 
 use Exception;
 
-class InsufficientPermissionException extends Exception
+class InsufficientPermissionsException extends Exception
 {
+    //
 }

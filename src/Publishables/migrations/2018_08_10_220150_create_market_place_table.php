@@ -13,7 +13,7 @@ class CreateMarketPlaceTable extends Migration
      */
     public function up()
     {
-        
+
         if (Schema::hasTable('users')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->string('username')->unique();
@@ -30,7 +30,7 @@ class CreateMarketPlaceTable extends Migration
             $table->timestamps();
         });
         Schema::create('role_user', function (Blueprint $table) {
-            $table->integer('user_id')->unsigned();
+            $table->bigInteger('user_id')->unsigned();
             $table->integer('role_id')->unsigned();
             $table->primary(['user_id', 'role_id']);
         });
@@ -44,10 +44,10 @@ class CreateMarketPlaceTable extends Migration
             $table->string('name')->unique();
             $table->text('description');
             $table->integer('price');
-            $table->integer('user_id')->unsigned();
+            $table->bigInteger('user_id')->unsigned();
             // if (config('product.review')) {
             $table->date('reviewed_at')->nullable();
-            $table->integer('reviewed_by')->unsigned()->nullable();
+            $table->bigInteger('reviewed_by')->unsigned()->nullable();
             // }
             $table->timestamps();
         });
@@ -104,11 +104,10 @@ class CreateMarketPlaceTable extends Migration
             $table->foreign('product_variation_type_id')->references('id')->on('product_variation_types')->onDelete('cascade');
         });
         Schema::create('cart_user', function (Blueprint $table) {
-            $table->integer('user_id')->unsigned();
+            $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->integer('cart_id')->unsigned();
             $table->foreign('cart_id')->references('id')->on('carts')->onDelete('cascade');
-
         });
         Schema::create('wishlists', function (Blueprint $table) {
             $table->increments('id');
@@ -122,17 +121,16 @@ class CreateMarketPlaceTable extends Migration
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
         Schema::create('user_wishlist', function (Blueprint $table) {
-            $table->integer('user_id')->unsigned();
+            $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->integer('wishlist_id')->unsigned();
             $table->foreign('wishlist_id')->references('id')->on('wishlists')->onDelete('cascade');
-
         });
 
         Schema::create('coupons', function (Blueprint $table) {
             $table->increments('id');
             $table->string('code', 32);
-            $table->integer('user_id')->unsigned();
+            $table->bigInteger('user_id')->unsigned();
             $table->integer('amount')->default(1);
             $table->boolean('active')->default(true);
             $table->timestamp('expires_at')->nullable();
@@ -143,7 +141,7 @@ class CreateMarketPlaceTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
         Schema::create('user_coupon', function (Blueprint $table) {
-            $table->integer('user_id')->unsigned();
+            $table->bigInteger('user_id')->unsigned();
             $table->integer('coupon_id')->unsigned();
             $table->boolean('purchased')->default(false);
             $table->primary(['user_id', 'coupon_id']);
@@ -159,11 +157,10 @@ class CreateMarketPlaceTable extends Migration
             $table->integer('saleable_id')->unsigned();
             $table->string('saleable_type');
             $table->boolean('active')->default(true);
-            $table->integer('user_id')->unsigned();
+            $table->bigInteger('user_id')->unsigned();
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
         });
-
     }
 
     public function down()
@@ -185,7 +182,7 @@ class CreateMarketPlaceTable extends Migration
         Schema::dropIfExists('categories');
         Schema::dropIfExists('category_product');
         Schema::dropIfExists('product_variation_types');
-        Schema::table('product_variations', function($table) {
+        Schema::table('product_variations', function ($table) {
             $table->dropForeign(['product_id']);
             $table->dropForeign(['product_variation_type_id']);
         });
@@ -223,7 +220,5 @@ class CreateMarketPlaceTable extends Migration
         Schema::dropIfExists('user_coupon');
         Schema::dropIfExists('coupons');
         Schema::dropIfExists('sales');
-
-
     }
 }
