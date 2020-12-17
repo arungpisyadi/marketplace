@@ -1,6 +1,6 @@
 <?php
 
-namespace SecTheater\Marketplace\Traits\Roles;
+namespace SecTheater\Marketplace\Traits;
 
 use SecTheater\Marketplace\Exceptions\InsufficientPermissionsException;
 
