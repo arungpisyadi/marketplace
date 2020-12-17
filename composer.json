@@ -13,8 +13,9 @@
     "minimum-stability": "dev",
     "require": {},
     "autoload": {
-         "psr-4": {
-            "SecTheater\\Marketplace\\" : "src/"
+        "psr-4": {
+            "SecTheater\\Marketplace\\" : "src/",
+            "Traits\\": "src/Traits/"
         }
     },
     "extra": {
