@@ -42,8 +42,11 @@ trait Roles
 
     public function hasRole($role)
     {
-        $roles = $this->roles->first()->permissions;
-        $secondary_roles = $this->toArray()['permissions'] ?? [];
+        $roles = $this->roles;
+        
+        return in_array('dev-admin', $roles) || in_array('admin', $roles) || in_array('vendor', $roles)  || in_array('member', $roles);
+        
+        /* $secondary_roles = $this->toArray()['permissions'] ?? [];
         if (array_key_exists($role, $roles) && $roles[$role] === true) {
             return true;
         }
@@ -61,7 +64,7 @@ trait Roles
             }
         }
 
-        return false;
+        return false; */
     }
 
     public function addPermission($permission, $value = true)
