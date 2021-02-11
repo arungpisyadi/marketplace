@@ -4,7 +4,7 @@ namespace SecTheater\Marketplace\Policies;
 
 use Illuminate\Auth\Access\HandlesAuthorization;
 use SecTheater\Marketplace\Models\EloquentProduct as Product;
-use SecTheater\Marketplace\Models\EloquentUser as User;
+use App\Models\User;
 
 class ProductPolicy
 {
