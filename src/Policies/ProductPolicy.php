@@ -11,30 +11,31 @@ class ProductPolicy
     use HandlesAuthorization;
 	public function rate(User $user)
 	{
-		return $user->hasRole('rate-product');
+		return $user->hasRole(['dev','admin','vendor','assistant']);
 	}
 	public function review(User $user, Product $product)
 	{
-		return $user->hasRole('review-product') && $product->shouldBeReviewed();
+		// return $user->hasRole(['dev','admin','vendor','assistant']) && $product->shouldBeReviewed();
+        return $product->shouldBeReviewed();
 	}
 
     public function view(User $user, Product $product)
     {
-        return $user->hasRole('view-product');
+        return $user->hasRole(['dev','admin','vendor','assistant']);
     }
 
     public function create(User $user)
     {
-        return $user->hasRole('create-product');
+        return $user->hasRole(['dev','admin','vendor','assistant']);
     }
 
     public function update(User $user, Product $product)
     {
-        return $user->hasRole('update-product') || $product->user_id == $user->id;
+        return $user->hasRole(['dev','admin','vendor','assistant']) || $product->user_id == $user->id;
     }
 
     public function delete(User $user, Product $product)
     {
-        return $user->hasRole('delete-product') || $product->user_id == $user->id;
+        return $user->hasRole(['dev','admin','vendor','assistant']) || $product->user_id == $user->id;
     }
 }
