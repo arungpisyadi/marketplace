@@ -11,10 +11,6 @@ class EloquentCart extends Eloquent implements CartInterface {
 		return $this->belongsToMany($this->userModel, 'cart_user','cart_id','user_id');
 	}
 	public function product() {
-		if (config('market.product.review')) {
-			return $this->belongsTo($this->productModel,'product_id')->whereNotNull('reviewed_at');
-			
-		}
 		return $this->belongsTo($this->productModel,'product_id');
 
 	}
