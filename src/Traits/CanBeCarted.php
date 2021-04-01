@@ -1,4 +1,5 @@
 <?php
+
 namespace SecTheater\Marketplace\Traits;
 
 use SecTheater\Marketplace\Contracts\CartInterface;
@@ -8,19 +9,35 @@ use SecTheater\Marketplace\Exceptions\ProductAttributesDoesNotMatchException;
 use SecTheater\Marketplace\Exceptions\ProductDoesNotExist;
 use SecTheater\Marketplace\Repositories\Traits\HasStock;
 
-trait CanBeCarted {
+trait CanBeCarted
+{
 	use HasStock;
 	protected $subtotal;
-	public function create(array $attributes) {
+	public function create(array $attributes)
+	{
 		return auth()->user()->{$this->getModelName}()->create($attributes);
 	}
-	public function canBeAdded(int $id, int $quantity = 1) {
+	public function canBeAdded(int $id, int $quantity = 1)
+	{
 		return ($this->typeRepo->stock($id) >= $quantity) && $quantity;
 	}
-	public function addOrCreate($type, int $quantity = 1) {
-		return $this->add($type, $quantity, true);
+	public function addOrCreate($type, int $quantity = 1)
+	{
+		// dump($type);
+		$create = true;
+		// dd($this->item()->count());
+		if ($this->item()->count() > 0) {
+			$target = $this->item()->first(function ($item) use ($type) {
+				return $item->product_variation_type_id == $type->id && $item->product_id == $type->product_id;
+			});
+			$create = null === $target;
+		}
+
+		// dd($create);
+		return $this->add($type, $quantity, $create);
 	}
-	public function add($type, int $quantity = 1, $create = false) {
+	public function add($type, int $quantity = 1, $create = false)
+	{
 		throw_unless($this->canBeAdded($type->id, $quantity), InsufficientProductQuantity::class);
 		if ($this->getModelName != 'wishlist') {
 			$this->typeRepo->decrementStock($type, $quantity);
@@ -29,16 +46,18 @@ trait CanBeCarted {
 			$attributes = ['product_id' => $type->product_id, 'quantity' => $quantity, 'product_variation_type_id' => $type->id];
 			return $this->create($attributes);
 		}
-		$cart = auth()->user()->{$this->getModelName}()->where(['product_id' => $type->product_id , 'product_variation_type_id' => $type->id ])->firstOrFail();
+		$cart = auth()->user()->{$this->getModelName}()->where(['product_id' => $type->product_id, 'product_variation_type_id' => $type->id])->firstOrFail();
 		$cart->increment('quantity', $quantity);
 		return $cart;
 	}
-	public function remove($id) {
+	public function remove($id)
+	{
 		$cart = $this->item($id);
 		$this->typeRepo->incrementStock($cart->type, $cart->quantity);
 		return !!$cart->delete();
 	}
-	public function subtotal() {
+	public function subtotal()
+	{
 		return $this->subtotal = auth()->user()->{$this->getModelName}()->get()->reduce(function ($carry, $cart) {
 			$price = $cart->quantity * ($cart->type->price ?? $cart->product->price);
 			if ($cart->product->has_sale) {
@@ -48,12 +67,14 @@ trait CanBeCarted {
 			return $carry;
 		}, $this->subtotal = 0);
 	}
-	public function subtotalAfterCoupon($coupons) {
+	public function subtotalAfterCoupon($coupons)
+	{
 		return $this->subtotal = app('CouponRepository')->appliedCoupons($coupons)->reduce(function ($carry, $coupon) {
 			return $carry -= $carry * ($coupon->percentage / 100);
 		}, $this->subtotal());
 	}
-	public function total($coupons = null) {
+	public function total($coupons = null)
+	{
 		if (!$this->subtotal) {
 			$this->subtotal = $coupons ? $this->subtotalAfterCoupon($coupons) : $this->subtotal();
 		}
@@ -63,27 +84,30 @@ trait CanBeCarted {
 		}
 		return $this->subtotal;
 	}
-	public function items() {
+	public function items()
+	{
 		return auth()->user()->{$this->getModelName};
 	}
-	public function item(int $id = null, array $attributes = null , $connector = 'or') {
+	public function item(int $id = null, array $attributes = null, $connector = 'or')
+	{
 		if (!$id && !$attributes) {
 			return $this->items();
 		}
 		if (!$id && $attributes) {
-			return auth()->user()->{$this->getModelName}()->whereHas('product.variations', function($query) use($attributes , $connector){
-				array_walk($attributes, function($value,$key) use($query , $connector){
-					$query->where('details->' . $key , '=', $value , $connector);
+			return auth()->user()->{$this->getModelName}()->whereHas('product.variations', function ($query) use ($attributes, $connector) {
+				array_walk($attributes, function ($value, $key) use ($query, $connector) {
+					$query->where('details->' . $key, '=', $value, $connector);
 				});
 			})->get();
 		}
-		$cart = auth()->user()->{$this->getModelName}()->findOrFail($id);
+		$cart = auth()->user()->{$this->getModelName}()->find($id);
 		if ($attributes) {
-			throw_unless($this->variationRepo->contains($cart->product_variation_type_id, $attributes), ProductAttributesDoesNotMatchException::class,'There is no product with the specified specifications.');
+			throw_unless($this->variationRepo->contains($cart->product_variation_type_id, $attributes), ProductAttributesDoesNotMatchException::class, 'There is no product with the specified specifications.');
 		}
 		return $cart;
 	}
-	public function clearAll(UserInterface $user = null) {
+	public function clearAll(UserInterface $user = null)
+	{
 		$user = $user ?? auth()->user();
 		if ($this->getModelName == 'wishlist') {
 			$released = $user->{$this->getModelName}()->count();
@@ -98,11 +122,13 @@ trait CanBeCarted {
 		});
 		return $released;
 	}
-	public function clearFor(UserInterface $user) {
+	public function clearFor(UserInterface $user)
+	{
 		return $this->clearAll($user);
 	}
-	public function renew(CartInterface $cart, array $data) {
-		if (isset($data['product_variation_type_id'] , $data['product_id'])) {
+	public function renew(CartInterface $cart, array $data)
+	{
+		if (isset($data['product_variation_type_id'], $data['product_id'])) {
 			$createdCart = $this->addOrCreate(
 				$this->typeRepo->findOrFail(
 					$data['product_variation_type_id']
@@ -115,7 +141,6 @@ trait CanBeCarted {
 		throw_unless($this->canBeAdded($cart->product_id, $data['quantity'] ?? $cart->quantity), InsufficientProductQuantity::class);
 		if (isset($data['quantity']) && $cart->quantity > $data['quantity']) {
 			$this->typeRepo->incrementStock($cart->type, $cart->quantity - $data['quantity']);
-			
 		}
 		if (isset($data['quantity']) && $cart->quantity < $data['quantity']) {
 			$this->typeRepo->decrementStock($cart->type, $data['quantity'] - $cart->quantity);
@@ -123,7 +148,8 @@ trait CanBeCarted {
 		$cart->update($data);
 		return $cart;
 	}
-	public function stock($cart) {
+	public function stock($cart)
+	{
 		$base = 'SecTheater\\Marketplace\\Models\\' . class_basename($this->model);
 		if (!$cart instanceof $base) {
 			$cart = $this->findOrFail($cart);
@@ -131,10 +157,12 @@ trait CanBeCarted {
 		return $cart->quantity;
 	}
 
-	public function __set($key, $value) {
-		$this->{$key} = str_replace('eloquent','' ,strtolower(class_basename($value)));
+	public function __set($key, $value)
+	{
+		$this->{$key} = str_replace('eloquent', '', strtolower(class_basename($value)));
 	}
-	public function __get($key) {
+	public function __get($key)
+	{
 		if (!property_exists($this, $key)) {
 			$this->{$key} = $this->model;
 		}
