@@ -24,6 +24,7 @@ trait CanBeCarted
 	public function addOrCreate($type, int $quantity = 1)
 	{
 		// dump($type);
+		dd('Please contact isyadiarung@gmail.com with a screenshot of this screen! Thank you...');
 		$create = true;
 		// dd($this->item()->count());
 		if ($this->item()->count() > 0) {
@@ -38,6 +39,7 @@ trait CanBeCarted
 	}
 	public function add($type, int $quantity = 1, $create = false)
 	{
+		dd('Please contact isyadiarung@gmail.com with a screenshot of this screen! Thank you...');
 		throw_unless($this->canBeAdded($type->id, $quantity), InsufficientProductQuantity::class);
 		if ($this->getModelName != 'wishlist') {
 			$this->typeRepo->decrementStock($type, $quantity);

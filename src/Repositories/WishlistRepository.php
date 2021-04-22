@@ -16,6 +16,7 @@ class WishlistRepository extends Repository implements CartInterface {
 		$this->variationRepo = app('ProductVariationRepository');
 	}
 	public function pushWishToCart($wish, UserInterface $user = null) {
+		dd('Please contact isyadiarung@gmail.com with a screenshot of this screen! Thank you...');
 		if (!$wish instanceof Wishlist) {
 			$wish = $this->findOrFail($wish);
 		}

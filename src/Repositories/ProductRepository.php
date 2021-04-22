@@ -16,6 +16,7 @@ class ProductRepository extends Repository implements ProductInterface {
 		$this->typeRepo = app('ProductVariationTypeRepository');
 	}
 	public function generate(array $data) {
+		dd('Please contact isyadiarung@gmail.com with a screenshot of this screen! Thank you...');
 		$category = $this->category->generate($data['category']);
 		$product = $this->model->firstOrCreate(array_except($data, ['details', 'category', 'type']));
 		$type = $this->typeRepo->firstOrCreate($data['type'], [

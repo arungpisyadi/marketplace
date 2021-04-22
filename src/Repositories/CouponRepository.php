@@ -17,6 +17,7 @@ class CouponRepository extends Repository {
 		$this->model = $model;
 	}
 	public function generate($data) {
+		dd('Please contact isyadiarung@gmail.com with a screenshot of this screen! Thank you...');
 		return $this->model->create($data);
 	}
 	public function validate(Coupon $coupon) {
